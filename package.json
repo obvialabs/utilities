@@ -32,7 +32,7 @@
   },
   "devDependencies"   : {
     "@obvia/presets"            : "^0.0.2",
-    "@types/node"               : "^19.2.4",
+    "@types/node"               : "^25.5.0",
     "@types/react"              : "^19.2.4",
     "typescript"                : "^5.9.3"
   },

@@ -1,4 +1,65 @@
 /**
+ * Configuration options for creating a WebGL context
+ */
+export interface CanvasContextOptions extends WebGLContextAttributes {
+  /**
+   * Suppress console error logging if WebGL cannot be created (unsupported, browser or device limits)
+   *
+   * @default false
+   */
+  silently?: boolean
+}
+
+/**
+ * Safely obtain a WebGL rendering context from a canvas element
+ *
+ * **Parameters**
+ * - `canvas` – Target canvas element to initialize **WebGL** on
+ * - `options` – Optional canvas context options (extends **WebGL** context attributes)
+ *    - `*` - Inherits all standard **WebGL** context attributes
+ *    - `silently` - Suppress error logging if **WebGL** cannot be created (default: false)
+ *
+ * **Usage**
+ * ```ts
+ * // Default usage
+ * const gl = canvasContext({ canvas })
+ *
+ * // Custom options
+ * const gl = canvasContext({
+ *   canvas,
+ *   options: { antialias: false, depth: false, silently: true }
+ * })
+ *
+ * if (!gl) {
+ *   // Handle fallback manually if needed
+ * }
+ * ```
+ */
+export function canvasContext({
+  canvas,
+  options = {}
+}: {
+  canvas: HTMLCanvasElement
+  options?: CanvasContextOptions
+}): WebGLRenderingContext | null {
+  // Attempt to obtain a WebGL rendering context from the given canvas
+  const webGL = canvas.getContext("webgl", options)
+
+  // If WebGL is not supported and silently is not enabled, log an error
+  if (!webGL && !options.silently) {
+    console.error(
+      "Failed to initialize WebGL context. " +
+      "This browser or device may not support WebGL, " +
+      "or the provided context attributes are not compatible.",
+      { canvas, options }
+    )
+  }
+
+  // Return the WebGLRenderingContext if available, otherwise null
+  return webGL
+}
+
+/**
  * Configuration options for resizing a canvas element
  */
 export interface ResizeCanvasOptions {
@@ -65,7 +126,7 @@ export interface ResizeCanvasOptions {
 export function resizeCanvas(
   canvas: HTMLCanvasElement,
   options: ResizeCanvasOptions = {}
-) {
+): void {
   const {
     max: {
       dpr: maxDpr = 1.5,

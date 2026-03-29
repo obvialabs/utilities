@@ -21,3 +21,13 @@ export {
   updateBufferPartial,
   deleteBuffer
 } from "./webgl/buffer"
+export {
+  bindAttribute,
+  disableAttribute
+} from "./webgl/attribute"
+export {
+  setUniform1f,
+  setUniform2f,
+  setUniform3f,
+  setUniformMatrix4fv
+} from "./webgl/uniform"

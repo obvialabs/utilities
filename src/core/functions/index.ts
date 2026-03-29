@@ -27,7 +27,12 @@ export {
 } from "./webgl/attribute"
 export {
   setUniform1f,
+  setUniform1i,
   setUniform2f,
   setUniform3f,
-  setUniformMatrix4fv
+  setUnform3fv,
+  setUniformMatrix2fv,
+  setUniformMatrix3fv,
+  setUniformMatrix4fv,
+  setUniformSampler
 } from "./webgl/uniform"

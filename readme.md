@@ -58,7 +58,7 @@ The roadmap shows both the **currently available utilities** and the **planned a
 
 | Category  | Description                                                                | Path                       | Status      |
 |-----------|----------------------------------------------------------------------------|----------------------------|-------------|
-| **Core**  | Framework‑agnostic utilities, constants, and formatters                    | ``@obvia/utilities``       | ✅ Available |
+| **Core**  | Framework‑agnostic utilities, constants, and formatters                    | ``@obvia/utilities``       | 🔜 Planned  |
 | **React** | Helpers tailored for React projects, JSX‑friendly utilities (SSR + client) | ``@obvia/utilities/react`` | 🔜 Planned  |
 | **Next**  | Utilities optimized for Next.js applications, consistent in SSR + client   | ``@obvia/utilities/next``  | 🔜 Planned  |
 | **Vue**   | Vue‑specific helpers, designed for both SSR and client rendering           | ``@obvia/utilities/vue``   | 🔜 Planned  |

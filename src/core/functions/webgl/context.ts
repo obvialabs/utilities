@@ -8,16 +8,24 @@ export interface CanvasContextOptions extends WebGLContextAttributes {
    * @default false
    */
   silently?: boolean
+
+  /**
+   * Attempt to create a WebGL2 context first, fallback to WebGL1 if unavailable
+   *
+   * @default false
+   */
+  webGL2?: boolean
 }
 
 /**
  * Safely obtain a WebGL rendering context from a canvas element
  *
  * **Parameters**
- * - `canvas` – Target canvas element to initialize **WebGL** on
- * - `options` – Optional canvas context options (extends **WebGL** context attributes)
- *    - `*` - Inherits all standard **WebGL** context attributes
- *    - `silently` - Suppress error logging if **WebGL** cannot be created (default: false)
+ * - `canvas` – Target canvas element to initialize WebGL on
+ * - `options` – Optional canvas context options (extends WebGL context attributes)
+ *    - `*` – Inherits all standard WebGL context attributes
+ *    - `silently` – Suppress error logging if WebGL cannot be created (default: false)
+ *    - `webgl2` – Attempt to create a WebGL2 context first, fallback to WebGL1 if unavailable (default: false)
  *
  * **Usage**
  * ```ts
@@ -27,6 +35,9 @@ export interface CanvasContextOptions extends WebGLContextAttributes {
  * // Custom options
  * const gl = canvasContext(canvas, { antialias: false, depth: false, silently: true })
  *
+ * // Try WebGL2 first, fallback to WebGL1
+ * const gl2 = canvasContext(canvas, { webgl2: true })
+ *
  * if (!gl) {
  *   // Handle fallback manually if needed
  * }
@@ -35,17 +46,26 @@ export interface CanvasContextOptions extends WebGLContextAttributes {
 export function canvasContext(
   canvas: HTMLCanvasElement,
   options: CanvasContextOptions = {}
-): WebGLRenderingContext | null {
+): WebGLRenderingContext | WebGL2RenderingContext | null {
   const {
     silently = false,
+    webGL2 = false,
     ...attributes
   } = options
 
-  // Attempt to obtain a WebGL rendering context from the given canvas
-  const webGL = canvas.getContext("webgl", options)
+  // Attempt to obtain a WebGL2 context if requested
+  let webGL: WebGLRenderingContext | WebGL2RenderingContext | null = null
+  if (webGL2) {
+    webGL = canvas.getContext("webgl2", attributes) as WebGL2RenderingContext | null
+  }
+
+  // Fallback to WebGL1 if WebGL2 is not available
+  if (!webGL) {
+    webGL = canvas.getContext("webgl", attributes)
+  }
 
   // If WebGL is not supported and silently is not enabled, log an error
-  if (!webGL && !options.silently) {
+  if (!webGL && !silently) {
     console.error(
       "Failed to initialize WebGL context. " +
       "This browser or device may not support WebGL, " +
@@ -92,10 +112,29 @@ export interface ResizeCanvasOptions {
    * Device pixel ratio source
    */
   source?: number
+
+  /**
+   * Automatically resize on window resize events
+   *
+   * @default false
+   */
+  autoResize?: boolean
+
+  /**
+   * Callback invoked after resize
+   */
+  onResize?: (width: number, height: number) => void
+
+  /**
+   * Rounding strategy for DPR scaling
+   *
+   * @default "floor"
+   */
+  rounding?: "floor" | "round" | "ceil"
 }
 
 /**
- * Resize a canvas element based on its bounding box and a device pixel ratio source
+ * Resize a canvas element based on its bounding box and device pixel ratio (DPR)
  *
  * **Parameters**
  * - `canvas` – Target canvas element to resize
@@ -109,6 +148,9 @@ export interface ResizeCanvasOptions {
  *       - `width` – Minimum canvas width (default: 1)
  *       - `height` – Minimum canvas height (default: 1)
  *    - `source` – Device pixel ratio source (default: `window.devicePixelRatio || 1`)
+ *    - `autoResize` – Automatically resize on window resize events (default: false)
+ *    - `onResize` – Callback invoked after resize with new width/height
+ *    - `rounding` – Rounding strategy for DPR scaling (`"floor" | "round" | "ceil"`)
  *
  * **Usage**
  * ```ts
@@ -120,6 +162,13 @@ export interface ResizeCanvasOptions {
  *
  * // Custom min/max constraints
  * resizeCanvas(canvas, { max: { dpr: 2 }, min: { width: 10, height: 10 } })
+ *
+ * // Auto resize with callback
+ * resizeCanvas(canvas, {
+ *   autoResize: true,
+ *   onResize: (w, h) => console.log("Resized:", w, h),
+ *   rounding: "round"
+ * })
  * ```
  */
 export function resizeCanvas(
@@ -137,22 +186,30 @@ export function resizeCanvas(
       width: minWidth = 1,
       height: minHeight = 1
     } = {},
-    source = window.devicePixelRatio || 1
+    source = window.devicePixelRatio || 1,
+    autoResize = false,
+    onResize,
+    rounding = "floor"
   } = options
 
-  // Calculate device pixel ratio with min/max limits
+  // Select rounding function based on strategy
+  const roundFn = Math[rounding]
+
+  // Clamp DPR between min and max
   const dpr = Math.min(Math.max(source || 1, minDpr), maxDpr)
 
   // Get canvas size from its bounding box
   const { width, height } = canvas.getBoundingClientRect()
 
   // Apply DPR scaling with min/max constraints
-  canvas.width = Math.min(
-    maxWidth,
-    Math.max(minWidth, Math.floor(width * dpr))
-  )
-  canvas.height = Math.min(
-    maxHeight,
-    Math.max(minHeight, Math.floor(height * dpr))
-  )
+  canvas.width = Math.min(maxWidth, Math.max(minWidth, roundFn(width * dpr)))
+  canvas.height = Math.min(maxHeight, Math.max(minHeight, roundFn(height * dpr)))
+
+  // Invoke callback if provided
+  if (onResize) onResize(canvas.width, canvas.height)
+
+  // Attach auto resize listener if enabled
+  if (autoResize) {
+    window.addEventListener("resize", () => resizeCanvas(canvas, options))
+  }
 }

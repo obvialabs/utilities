@@ -22,26 +22,25 @@ export interface CanvasContextOptions extends WebGLContextAttributes {
  * **Usage**
  * ```ts
  * // Default usage
- * const gl = canvasContext({ canvas })
+ * const gl = canvasContext(canvas)
  *
  * // Custom options
- * const gl = canvasContext({
- *   canvas,
- *   options: { antialias: false, depth: false, silently: true }
- * })
+ * const gl = canvasContext(canvas, { antialias: false, depth: false, silently: true })
  *
  * if (!gl) {
  *   // Handle fallback manually if needed
  * }
  * ```
  */
-export function canvasContext({
-  canvas,
-  options = {}
-}: {
-  canvas: HTMLCanvasElement
-  options?: CanvasContextOptions
-}): WebGLRenderingContext | null {
+export function canvasContext(
+  canvas: HTMLCanvasElement,
+  options: CanvasContextOptions = {}
+): WebGLRenderingContext | null {
+  const {
+    silently = false,
+    ...attributes
+  } = options
+
   // Attempt to obtain a WebGL rendering context from the given canvas
   const webGL = canvas.getContext("webgl", options)
 

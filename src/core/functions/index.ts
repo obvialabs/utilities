@@ -9,3 +9,15 @@ export {
   type CanvasContextOptions,
   type ResizeCanvasOptions
 } from "./webgl/context"
+export {
+  createBuffer,
+  createQuadBuffer,
+  createQuadIndexBuffer,
+  createCubeBuffer,
+  createCubeIndexBuffer,
+  createTriangleBuffer,
+  createTriangleIndexBuffer,
+  updateBuffer,
+  updateBufferPartial,
+  deleteBuffer
+} from "./webgl/buffer"

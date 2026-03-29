@@ -23,6 +23,7 @@ export {
 } from "./webgl/buffer"
 export {
   bindAttribute,
+  enableAttribute,
   disableAttribute
 } from "./webgl/attribute"
 export {
@@ -30,7 +31,6 @@ export {
   setUniform1i,
   setUniform2f,
   setUniform3f,
-  setUnform3fv,
   setUniformMatrix2fv,
   setUniformMatrix3fv,
   setUniformMatrix4fv,

@@ -44,6 +44,39 @@ export function bindAttribute(
 }
 
 /**
+ * Enable a vertex attribute
+ *
+ * **Parameters**
+ * - `gl` – Target WebGL rendering context
+ * - `program` – Linked shader program
+ * - `name` – Attribute name in the shader (e.g. "aPosition")
+ *
+ * **Usage**
+ * ```ts
+ * // Vertex shader example:
+ * // attribute vec3 aPosition;
+ *
+ * // Enable the "aPosition" attribute
+ * enableAttribute(gl, program, "aPosition")
+ *
+ * // After enabling, you can bind a buffer and set pointer
+ * gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
+ * gl.vertexAttribPointer(location, 3, gl.FLOAT, false, 0, 0)
+ * ```
+ */
+export function enableAttribute(
+  gl: WebGLRenderingContext,
+  program: WebGLProgram,
+  name: string
+): void {
+  const location = gl.getAttribLocation(program, name)
+  if (location === -1) {
+    throw new Error(`Attribute "${name}" not found in shader program`)
+  }
+  gl.enableVertexAttribArray(location)
+}
+
+/**
  * Disable a vertex attribute
  *
  * **Parameters**
